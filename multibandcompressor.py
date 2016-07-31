@@ -41,6 +41,7 @@ mag = bands[1]
 phase = bands[2]
 
 dB = 20 * np.log10(np.abs(mag/(np.sqrt(2))))
+tlevel = 6
 threshold = np.max(dB)-tlevel       
 ratio = float(5/1) #ratio for decibels higher than the threshold, please consider that denominator is ratio expressed as a number, which means if you want to set the ratio to 3:1 or 3:2 ratio will be equal to 3/1 or 3/2
 atcoef = -np.log(9)/(fs*at)

@@ -24,9 +24,9 @@ class WFS():
      
     r = 1.75
 
-    sinfo = sndinfo("/media/anitalmada/94D29DA0D29D86E0/Gong Li.wav")
+    sinfo = sndinfo("/pathtosound.wav")
     
-    sf = SfPlayer("/media/anitalmada/94D29DA0D29D86E0/Gong Li.wav")
+    sf = SfPlayer("/pathtosound.wav")
 
     mm = NewMatrix(SIZE, sinfo[0]/SIZE) #start creating the virtual source 
     fft = FFT(sf)
@@ -40,7 +40,7 @@ class WFS():
     z = r*betacos #set some values for the pretty cool axis of the matrix
     c = MatrixPointer(mm, x, y, z,omega).out() #getting ready to point sources
 
-    fieldreproduction = CvlVerb(sf, "/media/anitalmada/94D29DA0D29D86E0/wfs_prefilter_100_1800_192000.wav",size=SIZE,bal=c,mul=1+PeakAmp(c)).out() #convolution with a wfs prefilter that works within the terms of the matrix
+    fieldreproduction = CvlVerb(sf, "/pathtoimpulse.wav",size=SIZE,bal=c,mul=1+PeakAmp(c)).out() #convolution with a wfs prefilter that works within the terms of the matrix
 
     sp = Scope([fieldreproduction])
 
