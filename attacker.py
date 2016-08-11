@@ -1,4 +1,4 @@
-   """  This program is free software: you can redistribute it and/or modify
+"""  This program is free software: you can redistribute it and/or modify
     	it under the terms of the GNU General Public License as published by
     	the Free Software Foundation, either version 3 of the License, or
     	(at your option) any later version.
@@ -11,14 +11,14 @@
     	You should have received a copy of the GNU General Public License
     	along with this program.  If not, see <http://www.gnu.org/licenses/>. """
 
-from scipy.io.wavfile import *
 from scipy.fftpack import *
 import math
 import numpy as np
+from smst.utils import audio
 
-amplification = np.int(14)
+#TODO: debug distortion
 
-fs, data = read("/pathtosound.wav")
+fs, data = audio.read_wav("/pathtosound.wav")
 
 time = (len(data)/fs)
 
@@ -49,9 +49,9 @@ dBoftrack = dBoftrack()
 
 def amplifyAttack():
      a1 = dBoftrack <= dBofrms
-     dBoftrack[a1] *= 30
+     dBoftrack[a1] *= 6
      return np.int16(dBoftrack)
 
 output = amplifyAttack()+data    
     
-write("/pathtosound.wav",192000,np.int16(output))
+audio.write_wav(output,fs,"/pathtosound.wav")

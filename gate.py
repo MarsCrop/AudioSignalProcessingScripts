@@ -1,4 +1,4 @@
-   """  This program is free software: you can redistribute it and/or modify
+"""  This program is free software: you can redistribute it and/or modify
     	it under the terms of the GNU General Public License as published by
     	the Free Software Foundation, either version 3 of the License, or
     	(at your option) any later version.
@@ -13,10 +13,10 @@
 
 from pyo import *
 import numpy as np
-from scipy.io.wavfile import read
+from smst.utils.audio import read_wav
 import math
 
-fs, data = read("/pathtosound.wav")
+fs, data = read_wav("/pathtosound.wav")
 
 def dB(data=data):
     for i in data:
