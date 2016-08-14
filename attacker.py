@@ -12,46 +12,31 @@
     	along with this program.  If not, see <http://www.gnu.org/licenses/>. """
 
 from scipy.fftpack import *
-import math
 import numpy as np
-from smst.utils import audio
-
-#TODO: debug distortion
+from smst.utils import audio, math
+from essentia.standard import *
 
 fs, data = audio.read_wav("/pathtosound.wav")
 
-time = (len(data)/fs)
+envelope = Envelope()
 
-at = math.exp(-1/(time*fs))
+signal_envelope = envelope(data)
 
-print at
+at = LogAttackTime()
 
-seconds = np.array_split(data,time/at)
+attack_time = 10**(at(signal_envelope))
 
-def rms(array):
-    for i in array:
-        rms = lambda: np.sqrt(np.mean(np.square(np.abs(fft(array)))))
-        return rms()
-        break
+dboftrack = math.to_db_magnitudes(data)
 
-def dB(rms):
-        dB = 10 * np.log10(np.abs(rms(array=seconds[0])/seconds[0]))
-        return np.max(dB[dB<120])
-        
-dBofrms = dB(rms)
-        
-def dBoftrack():
-    for i in seconds[:]: 
-        dBoftrack = 20 * np.log10(np.abs(data))
-        return dBoftrack
+attack_samples = dboftrack[:attack_time*fs]
 
-dBoftrack = dBoftrack()
+# amplify attack without clipping the signal with a difference of 1 for output gain decrease
+def amplify_attack(boost = float, output_gain_decrease = float):
+     attack_db_level = dboftrack >= max(attack_samples)
+     dboftrack[attack_db_level] += boost
+     return (dboftrack - output_gain_decrease)
 
-def amplifyAttack():
-     a1 = dBoftrack <= dBofrms
-     dBoftrack[a1] *= 6
-     return np.int16(dBoftrack)
-
-output = amplifyAttack()+data    
+output = (10**(amplify_attack(boost = 0.6, output_gain_decrease = 1.6)*0.5))+data    
     
 audio.write_wav(output,fs,"/pathtosound.wav")
+

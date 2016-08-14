@@ -19,7 +19,7 @@ from scipy.fftpack import ifft, fftshift
 from smst.utils import math
 from smst.models import sine
 from smst.utils import audio
-from smst.utils import residual
+from essentia.standard import *
 
 
 fs, x = audio.read_wav('/pathtosound.wav') 
@@ -30,9 +30,19 @@ Ns = [128,128,4096,4096,4096,4096,4096,4096,4096,4096,4096,2048,4096,4096,4096,4
 
 ws = [signal.hamming(55),signal.hamming(55),signal.hamming(2047),signal.hamming(2047),signal.hamming(2047),signal.hamming(2047),signal.hamming(2047),signal.hamming(2047),signal.hamming(2047),signal.hamming(2047),signal.hamming(2047),signal.hamming(2047),np.hamming(257),np.hamming(257),np.hamming(127),np.hamming(57),np.hamming(55),np.hamming(53)]
 
-time = (x.size/fs)  
-at = (np.exp(-1/(time*fs)))
-release = (at*10) #get some acceptable release time
+
+def attack_and_release_time(signal):
+	envelope = Envelope()
+
+	signal_envelope = envelope(signal)
+
+	at = LogAttackTime()
+
+	attack_time = 10**(at(signal_envelope))
+	release_time = (attack_time*10) #get some acceptable release time
+	return attack_time, release_time
+
+at, rel = attack_and_release_time(x)
  
 bands = sine_multi(x=x, fs=fs, ws=ws[:11],Ns=Ns[:11],t=-78,Bs=Bs[:11],H=1024,minSineDur=.016, maxnSines=150, freqDevOffset=np.max(x)*0.0005, freqDevSlope=0.005)                                                    
 
@@ -45,7 +55,7 @@ tlevel = 6
 threshold = np.max(dB)-tlevel       
 ratio = float(5/1) #ratio for decibels higher than the threshold, please consider that denominator is ratio expressed as a number, which means if you want to set the ratio to 3:1 or 3:2 ratio will be equal to 3/1 or 3/2
 atcoef = -np.log(9)/(fs*at)
-relcoef = -np.log(9)/(fs*release)         
+relcoef = -np.log(9)/(fs*rel)         
 compute_gain = threshold+((dB[dB>threshold]-threshold)/ratio)
 gain_modif=compute_gain-dB[dB>threshold]
 smooth1 = (gain_modif*atcoef)+(threshold*(1-gain_modif))

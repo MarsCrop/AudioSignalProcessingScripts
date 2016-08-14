@@ -14,7 +14,6 @@
 from pyo import *
 import numpy as np
 from smst.utils.audio import read_wav
-import math
 
 fs, data = read_wav("/pathtosound.wav")
 
