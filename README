@@ -1,7 +1,0 @@
-This scripts are free to use under the terms of GPL licenses. Please read each one for more info.
-
-Python scripts for Audio Signal Processing. The implementations include dynamic range compression (based on bands of a signal), noise gating, attack amplification, wave field synthesis convolution of signals, and a spectral centroid equalization.
-
-Dependencies include SMS-Tools (install it via pip looking for smst package), NumPy, SciPy, and pyolib objects. This repo includes a sine.py module like the one of smst package, but coded for multiband analysis of a signal and using python language as much as possible.
-
-All code written by Marcelo Tuller (a.k.a. Mars Crop)
