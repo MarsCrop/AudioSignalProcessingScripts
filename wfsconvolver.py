@@ -11,37 +11,25 @@
     	You should have received a copy of the GNU General Public License
     	along with this program.  If not, see <http://www.gnu.org/licenses/>. """
 
-from pyo import *
-import math
+from soundfile import read
+from scipy.signal import lfilter
 
-class WFS():
+def delay(audio, N, delay_N):  
+    y_N = N + delay_N
+    y = np.zeros(y_N)    
+    for i in range(y.size):
+        if (i < delay_N):
+            y[i] = audio[i]
+        elif (i >= delay_N and i < N):
+            y[i] = audio[i] + audio[i - delay_N]
+        else:
+            y[i] = audio[i-delay_N]
+    return y
 
-    s = Server(audio='jack').boot()
+prefilter, fs = read(prefilter_filename) 
 
-    SIZE = 4095 #zero-padding
+audio, fs = read(filename) #both audio and prefilter should have same fs
 
-    theta = math.pi/2
-     
-    r = 1.75
+filtering = lfilter(prefilter, 1, audio)
 
-    sinfo = sndinfo("/pathtosound.wav")
-    
-    sf = SfPlayer("/pathtosound.wav")
-
-    mm = NewMatrix(SIZE, sinfo[0]/SIZE) #start creating the virtual source 
-    fft = FFT(sf)
-    alphasin = Sin(fft["imag"])
-    omega = 2 * math.pi * alphasin
-    alphacos = Cos(fft["imag"])
-    betasin = Sin(fft["imag"], mul = 1./theta)
-    x = r*alphasin*alphacos
-    y = r*alphasin*betasin
-    betacos = Cos(fft["imag"], mul = 1./theta)
-    z = r*betacos #set some values for the pretty cool axis of the matrix
-    c = MatrixPointer(mm, x, y, z,omega).out() #getting ready to point sources
-
-    fieldreproduction = CvlVerb(sf, "/pathtoimpulse.wav",size=SIZE,bal=c,mul=1+PeakAmp(c)).out() #convolution with a wfs prefilter that works within the terms of the matrix
-
-    sp = Scope([fieldreproduction])
-
-    s.gui(locals())
+output = delay(result, audio.size, 1024)
